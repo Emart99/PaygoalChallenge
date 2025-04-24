@@ -36,7 +36,7 @@ public class GlobalExceptionHandlerTest {
 
         ResponseEntity<?> response = exceptionHandler.handleBadRequestException(ex);
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         Map<String, Object> body = (Map<String, Object>) response.getBody();
         assertEquals(400, body.get("status"));

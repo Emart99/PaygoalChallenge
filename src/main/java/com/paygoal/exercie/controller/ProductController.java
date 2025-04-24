@@ -25,23 +25,12 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @Operation(summary = "Buscar producto por id", description = "Dado un id retorna un producto")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Producto encontrado",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))),
-            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
-    })
-    @GetMapping("/getProductById/{id}")
-    public ResponseEntity<Product> findById(@Parameter(description = "ID del producto a buscar") @PathVariable Long id) {
-        Product producto = productService.findById(id);
-        return ResponseEntity.ok(producto);
-    }
-
     @Operation(summary = "Crear un producto nuevo", description = "Crea un producto nuevo y lo retorna")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Producto creado exitosamente",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))),
-            @ApiResponse(responseCode = "400", description = "Ingresó datos de producto invalidos")
+            @ApiResponse(responseCode = "400", description = "Introdujo algun dato erroneo",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/BadRequestValidationError"))),
     })
     @PostMapping("/createProduct/")
     public ResponseEntity<Product> add(@Valid @RequestBody Product product) {
@@ -49,12 +38,27 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @Operation(summary = "Buscar producto por id", description = "Dado un id retorna un producto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Producto encontrado",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))),
+            @ApiResponse(responseCode = "404", description = "Producto no encotnrado",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/NotFoundError")))
+    })
+    @GetMapping("/getProductById/{id}")
+    public ResponseEntity<Product> findById(@Parameter(description = "ID del producto a buscar") @PathVariable Long id) {
+        Product producto = productService.findById(id);
+        return ResponseEntity.ok(producto);
+    }
+
     @Operation(summary = "Actualiza un producto ya existente", description = "Actualiza un producto y lo retorna")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Producto actualizado correctamente",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))),
-            @ApiResponse(responseCode = "404", description = "Producto no encontrado"),
-            @ApiResponse(responseCode = "400", description = "Ingresó datos de producto invalidos")
+            @ApiResponse(responseCode = "400", description = "Introdujo algun dato erroneo",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/BadRequestValidationError"))),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/NotFoundError")))
     })
     @PutMapping("/updateProduct/{id}")
     public ResponseEntity<Product> update(
@@ -67,7 +71,8 @@ public class ProductController {
     @Operation(summary = "Borra un producto", description = "Borra un producto por id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Producto borrado exitosamente"),
-            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/NotFoundError")))
     })
     @DeleteMapping("/deleteProduct/{id}")
     public ResponseEntity<Void> delete(

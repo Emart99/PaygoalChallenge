@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "Identificador unico del producto", example = "1")
+    @Schema(description = "Identificador unico del producto", example = "1", readOnly = true)
     private Long id;
 
     @NotBlank(message = "Name is required")

@@ -1,5 +1,5 @@
 # Paygoal Challenge
-[![codecov](https://codecov.io/gh/Emart99/PaygoalEx/branch/main/graph/badge.svg)](https://codecov.io/gh/Emart99/PaygoalEx)
+[![codecov](https://codecov.io/gh/Emart99/PaygoalChallenge/branch/main/graph/badge.svg)](https://codecov.io/gh/Emart99/PaygoalChallenge)
 ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
 ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
 ### Requerimientos 

@@ -29,6 +29,8 @@ http://localhost:8080/swagger-ui/index.html
 ### Algunos comentarios
 Hay tests en el path src -> tests -> java -> ...  
 Como base de datos use H2.  
+En el path src -> main -> resources hay un archivo data.sql que inicializa 10 productos.  
 Para documentar Swagger.  
 Para el manejo de excepciones hice un GlobalExceptionHandler.  
-Jacoco para el coverage.    
+Jacoco para el coverage. 
+

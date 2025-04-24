@@ -13,9 +13,11 @@
      mvn spring-boot:run
 
 ### Documentacion
-Mientras el proyecto esta ejecutandose, ingresar al siguiente enlace  
+Mientras el proyecto esta ejecutandose,  
+ingresar al siguiente enlace,  
+donde podra ver todos los posibles endpoints  
 http://localhost:8080/swagger-ui/index.html
-    
+
 
     
 ### Como correr los tests

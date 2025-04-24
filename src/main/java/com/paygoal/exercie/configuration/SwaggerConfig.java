@@ -21,7 +21,7 @@ public class SwaggerConfig {
                         .version("v1.0.0"))
                         .externalDocs(new ExternalDocumentation()
                         .description("Product Management Documentation")
-                        .url("https://github.com/Emart99/PaygoalEx"))
+                        .url("https://github.com/Emart99/PaygoalChallenge"))
                         .servers(Arrays.asList(
                         new Server().url("http://localhost:8080").description("Development Server")
                 ));

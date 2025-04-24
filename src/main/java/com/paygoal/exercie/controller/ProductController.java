@@ -19,7 +19,6 @@ import javax.validation.Valid;
 @RequestMapping("/api/products")
 @Tag(name = "Product Controller", description = "API for managing products")
 public class ProductController {
-
     private final ProductServiceImpl productService;
 
     public ProductController(ProductServiceImpl productService) {

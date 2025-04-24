@@ -7,10 +7,10 @@
 * Maven
 
 ### Como correrlo sin ide
-    - git clone https://github.com/Emart99/PaygoalChallenge.git
-    - cd PaygoalChallenge
-    - mvn clean install
-    - mvn spring-boot:run
+     git clone https://github.com/Emart99/PaygoalChallenge.git
+     cd PaygoalChallenge
+     mvn clean install
+     mvn spring-boot:run
 
 ### Documentacion
 Mientras el proyecto esta ejecutandose, ingresar al siguiente enlace  
@@ -19,14 +19,14 @@ http://localhost:8080/swagger-ui/index.html
 
     
 ### Como correr los tests
-    - En el path del proyecto
-    - mvn clean test jacoco:report
-    - Luego para ver el reporte debe dirigirse a
-    - /target/site/jacoco/index.html
+     En el path del proyecto
+     mvn clean test jacoco:report
+     Luego para ver el reporte debe dirigirse a
+     /target/site/jacoco/index.html
 
 ### Algunos comentarios
 Hay tests en el path src -> tests -> java -> ...  
 Como base de datos use H2.  
 Para documentar Swagger.  
-Para el manejo de excepciones hice un GlobalExceptionHandler.
+Para el manejo de excepciones hice un GlobalExceptionHandler.  
 Jacoco para el coverage.    

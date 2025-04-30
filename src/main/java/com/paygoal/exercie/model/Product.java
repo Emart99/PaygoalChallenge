@@ -15,11 +15,11 @@ import java.math.BigDecimal;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "Identificador unico del producto", example = "1", readOnly = true)
+    @Schema(description = "Identificador unico del producto", example = "1", accessMode = Schema.AccessMode.READ_ONLY )
     private Long id;
 
     @NotBlank(message = "Name is required")
-    @Schema(description = "Nombre del producto", example = "Silla de madera", required = true)
+    @Schema(description = "Nombre del producto", example = "Silla de madera", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
     @Schema(description = "Descripcion detallada del producto", example = "Una silla comoda")
@@ -27,7 +27,7 @@ public class Product {
 
     @NotNull(message = "Price is required")
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
-    @Schema(description = "Precio del producto", example = "9999", required = true)
+    @Schema(description = "Precio del producto", example = "9999", requiredMode = Schema.RequiredMode.REQUIRED)
     private BigDecimal price;
 
     @Min(value = 0, message = "Stock cannot be negative")

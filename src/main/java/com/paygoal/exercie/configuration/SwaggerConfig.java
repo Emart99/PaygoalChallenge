@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
 @Configuration
@@ -28,7 +29,7 @@ public class SwaggerConfig {
                 .externalDocs(new ExternalDocumentation()
                         .description("Product Management Documentation")
                         .url("https://github.com/Emart99/PaygoalChallenge"))
-                .servers(Arrays.asList(
+                .servers(Collections.singletonList(
                         new Server().url("http://localhost:8080").description("Development Server")
                 ))
                 .components(new Components()
@@ -41,9 +42,9 @@ public class SwaggerConfig {
     private Schema<Object> createSimpleErrorSchema(int statusCode, String message) {
         Schema<Object> schema = new Schema<>();
         schema.setType("object");
-        schema.addProperties("status", new Schema<>().type("integer").example(statusCode));
-        schema.addProperties("message", new Schema<>().type("string").example(message));
-        schema.addProperties("timestamp", new Schema<>().type("string").format("date-time").example("2025-04-24T12:34:56Z"));
+        schema.addProperty("status", new Schema<>().type("integer").example(statusCode));
+        schema.addProperty("message", new Schema<>().type("string").example(message));
+        schema.addProperty("timestamp", new Schema<>().type("string").format("date-time").example("2025-04-24T12:34:56Z"));
         return schema;
     }
 
@@ -62,9 +63,9 @@ public class SwaggerConfig {
                 )
         );
 
-        schema.addProperties("errors", errorsSchema);
-        schema.addProperties("status", new Schema<>().type("integer").example(400));
-        schema.addProperties("timestamp", new Schema<>().type("string").format("date-time").example("2025-04-24T14:58:20.149218"));
+        schema.addProperty("errors", errorsSchema);
+        schema.addProperty("status", new Schema<>().type("integer").example(400));
+        schema.addProperty("timestamp", new Schema<>().type("string").format("date-time").example("2025-04-24T14:58:20.149218"));
         return schema;
     }
 

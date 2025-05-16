@@ -12,7 +12,6 @@ import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -23,9 +22,9 @@ public class SwaggerConfig {
     public OpenAPI productOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Ejercicio Jr")
-                        .description("Api rest Paygoal challenge")
-                        .version("v1.0.0"))
+                        .title("Product API")
+                        .description("RESTful API for Product Management")
+                        .version("v2.0.0"))
                 .externalDocs(new ExternalDocumentation()
                         .description("Product Management Documentation")
                         .url("https://github.com/Emart99/PaygoalChallenge"))
@@ -44,7 +43,7 @@ public class SwaggerConfig {
         schema.setType("object");
         schema.addProperty("status", new Schema<>().type("integer").example(statusCode));
         schema.addProperty("message", new Schema<>().type("string").example(message));
-        schema.addProperty("timestamp", new Schema<>().type("string").format("date-time").example("2025-04-24T12:34:56Z"));
+        schema.addProperty("timestamp", new Schema<>().type("string").format("date-time").example("2025-05-15T12:34:56Z"));
         return schema;
     }
 
@@ -65,7 +64,7 @@ public class SwaggerConfig {
 
         schema.addProperty("errors", errorsSchema);
         schema.addProperty("status", new Schema<>().type("integer").example(400));
-        schema.addProperty("timestamp", new Schema<>().type("string").format("date-time").example("2025-04-24T14:58:20.149218"));
+        schema.addProperty("timestamp", new Schema<>().type("string").format("date-time").example("2025-05-15T14:58:20.149218"));
         return schema;
     }
 

@@ -1,7 +1,7 @@
 package com.paygoal.exercie.controller;
 
-import com.paygoal.exercie.model.Product;
-import com.paygoal.exercie.service.ProductServiceImpl;
+import com.paygoal.exercie.dto.ProductDto;
+import com.paygoal.exercie.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -9,83 +9,78 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
 @Tag(name = "Product Controller", description = "API for managing products")
+@RequiredArgsConstructor
 public class ProductController {
-    private final ProductServiceImpl productService;
 
-    public ProductController(ProductServiceImpl productService) {
-        this.productService = productService;
+    private final ProductService productService;
+
+    @Operation(summary = "Create a new product", description = "Creates a new product and returns it")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Product created successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/BadRequestValidationError")))
+    })
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProductDto createProduct(@Valid @RequestBody ProductDto productDto) {
+        return productService.create(productDto);
     }
 
-    @Operation(summary = "Crear un producto nuevo", description = "Crea un producto nuevo y lo retorna")
+    @Operation(summary = "Get product by ID", description = "Returns a product by its ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Producto creado exitosamente",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))),
-            @ApiResponse(responseCode = "400", description = "Introdujo algun dato erroneo",
+            @ApiResponse(responseCode = "200", description = "Product found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductDto.class))),
+            @ApiResponse(responseCode = "404", description = "Product not found",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/NotFoundError")))
+    })
+    @GetMapping("/{id}")
+    public ProductDto getProductById(@Parameter(description = "Product ID") @PathVariable Long id) {
+        return productService.findById(id);
+    }
+
+    @Operation(summary = "Update an existing product", description = "Updates a product and returns it")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data",
                     content = @Content(schema = @Schema(ref = "#/components/schemas/BadRequestValidationError"))),
-    })
-    @PostMapping("/createProduct/")
-    public ResponseEntity<Product> add(@Valid @RequestBody Product product) {
-        Product created = productService.add(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
-
-    @Operation(summary = "Buscar producto por id", description = "Dado un id retorna un producto")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Producto encontrado",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))),
-            @ApiResponse(responseCode = "404", description = "Producto no encotnrado",
+            @ApiResponse(responseCode = "404", description = "Product not found",
                     content = @Content(schema = @Schema(ref = "#/components/schemas/NotFoundError")))
     })
-    @GetMapping("/getProductById/{id}")
-    public ResponseEntity<Product> findById(@Parameter(description = "ID del producto a buscar") @PathVariable Long id) {
-        Product producto = productService.findById(id);
-        return ResponseEntity.ok(producto);
+    @PutMapping("/{id}")
+    public ProductDto updateProduct(
+            @Parameter(description = "Product ID") @PathVariable Long id,
+            @Valid @RequestBody ProductDto productDto) {
+        return productService.update(id, productDto);
     }
 
-    @Operation(summary = "Actualiza un producto ya existente", description = "Actualiza un producto y lo retorna")
+    @Operation(summary = "Delete a product", description = "Deletes a product by ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Producto actualizado correctamente",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))),
-            @ApiResponse(responseCode = "400", description = "Introdujo algun dato erroneo",
-                    content = @Content(schema = @Schema(ref = "#/components/schemas/BadRequestValidationError"))),
-            @ApiResponse(responseCode = "404", description = "Producto no encontrado",
+            @ApiResponse(responseCode = "204", description = "Product deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Product not found",
                     content = @Content(schema = @Schema(ref = "#/components/schemas/NotFoundError")))
     })
-    @PutMapping("/updateProduct/{id}")
-    public ResponseEntity<Product> update(
-            @Parameter(description = "ID del producto a atuallizar") @PathVariable Long id,
-            @Valid @RequestBody Product productDetails) {
-        Product updated = productService.update(id, productDetails);
-        return ResponseEntity.ok(updated);
-    }
-
-    @Operation(summary = "Borra un producto", description = "Borra un producto por id")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Producto borrado exitosamente"),
-            @ApiResponse(responseCode = "404", description = "Producto no encontrado",
-                    content = @Content(schema = @Schema(ref = "#/components/schemas/NotFoundError")))
-    })
-    @DeleteMapping("/deleteProduct/{id}")
-    public ResponseEntity<Void> delete(
-            @Parameter(description = "ID del producto para borrar") @PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProduct(@Parameter(description = "Product ID") @PathVariable Long id) {
         productService.delete(id);
-        return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Trae todos los productos ordenados por precio", description = "Retorna una lista de productos ordenados por precio ascendentemente")
-    @ApiResponse(responseCode = "200", description = "Lista de productos encontrada exitosamente")
-    @GetMapping("/findAllOrderedByPrice")
-    public ResponseEntity<Iterable<Product>> findAllOrderedByPrice() {
-        Iterable<Product> products = productService.findAllOrderedByPrice();
-        return ResponseEntity.ok(products);
+    @Operation(summary = "Get all products ordered by price", description = "Returns a list of products ordered by price ascending")
+    @ApiResponse(responseCode = "200", description = "List of products found successfully")
+    @GetMapping
+    public List<ProductDto> getAllProductsOrderedByPrice() {
+        return productService.findAllOrderedByPrice();
     }
 }

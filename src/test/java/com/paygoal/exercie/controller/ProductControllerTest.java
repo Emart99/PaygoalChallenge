@@ -78,7 +78,7 @@ public class ProductControllerTest {
     @Test
     void updateShouldUpdateAndReturnProduct() throws Exception {
         Product updatedProduct = new Product("Updated Product", "Updated Description", new BigDecimal("79.99"), 15);
-        updatedProduct.setId(1L);
+        updatedProduct.setPrice(new BigDecimal("90009.99"));
 
         when(productService.update(eq(1L), any(Product.class))).thenReturn(updatedProduct);
 
@@ -87,7 +87,7 @@ public class ProductControllerTest {
                         .content(objectMapper.writeValueAsString(updatedProduct)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Updated Product"))
-                .andExpect(jsonPath("$.price").value(79.99));
+                .andExpect(jsonPath("$.price").value(90009.99));
 
         verify(productService, times(1)).update(eq(1L), any(Product.class));
     }

@@ -1,7 +1,10 @@
 package com.paygoal.exercie.service;
+
+import com.paygoal.exercie.dto.ProductDto;
 import com.paygoal.exercie.exception.ProductNotFoundException;
 import com.paygoal.exercie.model.Product;
 import com.paygoal.exercie.repository.ProductRepository;
+import com.paygoal.exercie.utils.ProductMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,10 +12,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -23,35 +28,84 @@ public class ProductServiceImplTest {
     @Mock
     private ProductRepository productRepository;
 
+    @Mock
+    private ProductMapper productMapper;
+
     @InjectMocks
     private ProductServiceImpl productService;
 
     private Product testProduct;
+    private ProductDto testProductDto;
     private List<Product> productList;
+    private List<ProductDto> productDtoList;
 
     @BeforeEach
     void setUp() {
-        testProduct = new Product("Test Product", "Test Description", new BigDecimal("99.99"), 10);
-        testProduct.setId(1L);
+        testProduct = Product.builder()
+                .id(1L)
+                .name("Test Product")
+                .description("Test Description")
+                .price(new BigDecimal("99.99"))
+                .stock(10)
+                .build();
 
-        Product product1 = new Product("Product 1", "Description 1", new BigDecimal("19.99"), 5);
-        product1.setId(1L);
-        Product product2 = new Product("Product 2", "Description 2", new BigDecimal("29.99"), 10);
-        product2.setId(2L);
+        testProductDto = ProductDto.builder()
+                .id(1L)
+                .name("Test Product")
+                .description("Test Description")
+                .price(new BigDecimal("99.99"))
+                .stock(10)
+                .build();
+
+        Product product1 = Product.builder()
+                .id(1L)
+                .name("Product 1")
+                .description("Description 1")
+                .price(new BigDecimal("19.99"))
+                .stock(5)
+                .build();
+
+        Product product2 = Product.builder()
+                .id(2L)
+                .name("Product 2")
+                .description("Description 2")
+                .price(new BigDecimal("29.99"))
+                .stock(10)
+                .build();
 
         productList = Arrays.asList(product1, product2);
+
+        ProductDto productDto1 = ProductDto.builder()
+                .id(1L)
+                .name("Product 1")
+                .description("Description 1")
+                .price(new BigDecimal("19.99"))
+                .stock(5)
+                .build();
+
+        ProductDto productDto2 = ProductDto.builder()
+                .id(2L)
+                .name("Product 2")
+                .description("Description 2")
+                .price(new BigDecimal("29.99"))
+                .stock(10)
+                .build();
+
+        productDtoList = Arrays.asList(productDto1, productDto2);
     }
 
     @Test
-    void findByIdShouldReturnProductWhenProductExists() {
+    void findByIdShouldReturnProductDtoWhenProductExists() {
         when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+        when(productMapper.toDto(testProduct)).thenReturn(testProductDto);
 
-        Product found = productService.findById(1L);
+        ProductDto found = productService.findById(1L);
 
         assertNotNull(found);
         assertEquals(1L, found.getId());
         assertEquals("Test Product", found.getName());
         verify(productRepository, times(1)).findById(1L);
+        verify(productMapper, times(1)).toDto(testProduct);
     }
 
     @Test
@@ -63,53 +117,101 @@ public class ProductServiceImplTest {
         });
 
         verify(productRepository, times(1)).findById(99L);
+        verify(productMapper, never()).toDto(any(Product.class));
     }
 
     @Test
-    void addShouldSaveAndReturnProduct() {
-        Product newProduct = new Product("New Product", "New Description", new BigDecimal("59.99"), 7);
+    void createShouldSaveAndReturnProductDto() {
+        ProductDto newProductDto = ProductDto.builder()
+                .name("New Product")
+                .description("New Description")
+                .price(new BigDecimal("59.99"))
+                .stock(7)
+                .build();
 
-        when(productRepository.save(any(Product.class))).thenReturn(testProduct);
+        Product newProduct = Product.builder()
+                .name("New Product")
+                .description("New Description")
+                .price(new BigDecimal("59.99"))
+                .stock(7)
+                .build();
 
-        Product saved = productService.add(newProduct);
+        when(productMapper.toEntity(newProductDto)).thenReturn(newProduct);
+        when(productRepository.save(newProduct)).thenReturn(testProduct);
+        when(productMapper.toDto(testProduct)).thenReturn(testProductDto);
+
+        ProductDto saved = productService.create(newProductDto);
 
         assertNotNull(saved);
         assertEquals(1L, saved.getId());
         assertEquals("Test Product", saved.getName());
+        verify(productMapper, times(1)).toEntity(newProductDto);
         verify(productRepository, times(1)).save(newProduct);
+        verify(productMapper, times(1)).toDto(testProduct);
     }
 
     @Test
-    void updateShouldUpdateAndReturnProductWhenProductExists() {
-        Product updateDetails = new Product("Updated Product", "Updated Description", new BigDecimal("79.99"), 15);
+    void updateShouldUpdateAndReturnProductDtoWhenProductExists() {
+        ProductDto updateDetailsDto = ProductDto.builder()
+                .name("Updated Product")
+                .description("Updated Description")
+                .price(new BigDecimal("79.99"))
+                .stock(15)
+                .build();
+
+        Product updatedProduct = Product.builder()
+                .id(1L)
+                .name("Updated Product")
+                .description("Updated Description")
+                .price(new BigDecimal("79.99"))
+                .stock(15)
+                .build();
+
+        ProductDto updatedProductDto = ProductDto.builder()
+                .id(1L)
+                .name("Updated Product")
+                .description("Updated Description")
+                .price(new BigDecimal("79.99"))
+                .stock(15)
+                .build();
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
-        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        doNothing().when(productMapper).updateProductFromDto(updateDetailsDto, testProduct);
+        when(productRepository.save(testProduct)).thenReturn(updatedProduct);
+        when(productMapper.toDto(updatedProduct)).thenReturn(updatedProductDto);
 
-        Product updated = productService.update(1L, updateDetails);
+        ProductDto updated = productService.update(1L, updateDetailsDto);
 
         assertNotNull(updated);
         assertEquals(1L, updated.getId());
         assertEquals("Updated Product", updated.getName());
         assertEquals("Updated Description", updated.getDescription());
-        assertEquals(new BigDecimal("79.99"), updated.getPrice());
+        assertEquals(0, new BigDecimal("79.99").compareTo(updated.getPrice()));
         assertEquals(15, updated.getStock());
 
         verify(productRepository, times(1)).findById(1L);
-        verify(productRepository, times(1)).save(any(Product.class));
+        verify(productMapper, times(1)).updateProductFromDto(updateDetailsDto, testProduct);
+        verify(productRepository, times(1)).save(testProduct);
+        verify(productMapper, times(1)).toDto(updatedProduct);
     }
 
     @Test
     void updateShouldThrowExceptionWhenProductDoesNotExist() {
-        Product updateDetails = new Product("Updated Product", "Updated Description", new BigDecimal("79.99"), 15);
+        ProductDto updateDetailsDto = ProductDto.builder()
+                .name("Updated Product")
+                .description("Updated Description")
+                .price(new BigDecimal("79.99"))
+                .stock(15)
+                .build();
 
         when(productRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ProductNotFoundException.class, () -> {
-            productService.update(99L, updateDetails);
+            productService.update(99L, updateDetailsDto);
         });
 
         verify(productRepository, times(1)).findById(99L);
+        verify(productMapper, never()).updateProductFromDto(any(), any());
         verify(productRepository, never()).save(any(Product.class));
     }
 
@@ -125,7 +227,7 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    void delete_ShouldThrowException_WhenProductDoesNotExist() {
+    void deleteShouldThrowExceptionWhenProductDoesNotExist() {
         when(productRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ProductNotFoundException.class, () -> {
@@ -137,16 +239,17 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    void findAllOrderedByPrice_ShouldReturnSortedProducts() {
+    void findAllOrderedByPriceShouldReturnSortedProductDtos() {
         when(productRepository.findAll(any(Sort.class))).thenReturn(productList);
+        when(productMapper.toDtoList(productList)).thenReturn(productDtoList);
 
-        Iterable<Product> result = productService.findAllOrderedByPrice();
+        List<ProductDto> result = productService.findAllOrderedByPrice();
 
         assertNotNull(result);
-        List<Product> resultList = (List<Product>) result;
-        assertEquals(2, resultList.size());
-        assertEquals("Product 1", resultList.get(0).getName());
+        assertEquals(2, result.size());
+        assertEquals("Product 1", result.get(0).getName());
 
         verify(productRepository, times(1)).findAll(any(Sort.class));
+        verify(productMapper, times(1)).toDtoList(productList);
     }
 }

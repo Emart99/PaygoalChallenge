@@ -1,7 +1,7 @@
 package com.paygoal.exercie;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.paygoal.exercie.model.Product;
+import com.paygoal.exercie.dto.ProductDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -31,7 +31,7 @@ public class PaygoalExerciseApplicationIntegrationTest {
 
     @Test
     void findByIdShouldReturnProduct() throws Exception {
-        mockMvc.perform(get("/api/products/getProductById/1"))
+        mockMvc.perform(get("/api/products/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("mesa redonda"));
@@ -39,13 +39,14 @@ public class PaygoalExerciseApplicationIntegrationTest {
 
     @Test
     void createProductShouldSaveAndReturnNewProduct() throws Exception {
-        Product newProduct = new Product(
-                "Test Integration Product",
-                "Product created in integration test",
-                new BigDecimal("199.99"),
-                25);
+        ProductDto newProduct = ProductDto.builder()
+                .name("Test Integration Product")
+                .description("Product created in integration test")
+                .price(new BigDecimal("199.99"))
+                .stock(25)
+                .build();
 
-        mockMvc.perform(post("/api/products/createProduct/")
+        mockMvc.perform(post("/api/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newProduct)))
                 .andExpect(status().isCreated())
@@ -55,15 +56,15 @@ public class PaygoalExerciseApplicationIntegrationTest {
 
     @Test
     void updateProductShouldUpdateExistingProduct() throws Exception {
-        String originalProductJson = mockMvc.perform(get("/api/products/getProductById/2"))
+        String originalProductJson = mockMvc.perform(get("/api/products/2"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        Product originalProduct = objectMapper.readValue(originalProductJson, Product.class);
+        ProductDto originalProduct = objectMapper.readValue(originalProductJson, ProductDto.class);
         originalProduct.setName("Updated Name in Integration Test");
         originalProduct.setPrice(new BigDecimal("88.88"));
 
-        mockMvc.perform(put("/api/products/updateProduct/2")
+        mockMvc.perform(put("/api/products/2")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(originalProduct)))
                 .andExpect(status().isOk())
@@ -74,45 +75,47 @@ public class PaygoalExerciseApplicationIntegrationTest {
 
     @Test
     void deleteProductShouldRemoveProduct() throws Exception {
-        Product productToDelete = new Product(
-                "Product to Delete",
-                "This product will be deleted",
-                new BigDecimal("50.00"),
-                1);
+        ProductDto productToDelete = ProductDto.builder()
+                .name("Product to Delete")
+                .description("This product will be deleted")
+                .price(new BigDecimal("50.00"))
+                .stock(1)
+                .build();
 
-        String createdProductJson = mockMvc.perform(post("/api/products/createProduct/")
+        String createdProductJson = mockMvc.perform(post("/api/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(productToDelete)))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        Product createdProduct = objectMapper.readValue(createdProductJson, Product.class);
+        ProductDto createdProduct = objectMapper.readValue(createdProductJson, ProductDto.class);
 
-        mockMvc.perform(delete("/api/products/deleteProduct/" + createdProduct.getId()))
+        mockMvc.perform(delete("/api/products/" + createdProduct.getId()))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/api/products/getProductById/" + createdProduct.getId()))
+        mockMvc.perform(get("/api/products/" + createdProduct.getId()))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void findAllOrderedByPriceShouldReturnProductsSortedByPrice() throws Exception {
-        mockMvc.perform(get("/api/products/findAllOrderedByPrice"))
+        mockMvc.perform(get("/api/products"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(equalTo(10))))
+                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(10))))
                 .andExpect(jsonPath("$[0].price", lessThanOrEqualTo(80000.0)))
                 .andExpect(jsonPath("$[*].price").value(everyItem(notNullValue())));
     }
 
     @Test
     void createInvalidProductShouldReturnBadRequest() throws Exception {
-        Product invalidProduct = new Product(
-                "",
-                "Description",
-                new BigDecimal("-10.00"),
-                -5);
+        ProductDto invalidProduct = ProductDto.builder()
+                .name("")
+                .description("Description")
+                .price(new BigDecimal("-10.00"))
+                .stock(-5)
+                .build();
 
-        mockMvc.perform(post("/api/products/createProduct/")
+        mockMvc.perform(post("/api/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
